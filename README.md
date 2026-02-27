@@ -46,7 +46,7 @@ f1-data-pipeline/
 
 **1. Clone the repo**
 ```bash
-git clone https://github.com/YOURUSERNAME/f1-data-pipeline.git
+git clone https://github.com/srtarpara/f1-data-pipeline.git
 cd f1-data-pipeline
 ```
 
