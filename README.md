@@ -1,13 +1,14 @@
 # F1 Data Pipeline
 
-A data engineering project that pulls live Formula 1 data from the [OpenF1 API](https://openf1.org/), stores it in a structured database, and serves it through a custom REST API.
+A data engineering project that pulls live Formula 1 data from the [OpenF1 API](https://openf1.org/), stores it in a structured database, and serves it through a custom REST API. An automated scheduler keeps the data fresh by running the pipeline every 24 hours.
 
 ## What It Does
 
 - Fetches real-time F1 data including drivers, sessions, and lap times
 - Stores data in a structured SQLite database with relational tables
 - Exposes data through a FastAPI REST API with multiple query endpoints
-- Supports querying fastest laps per driver for any race session
+- Automatically detects the latest race session and fetches its lap data
+- Runs the full pipeline every 24 hours without manual intervention
 
 ## Tech Stack
 
@@ -15,6 +16,7 @@ A data engineering project that pulls live Formula 1 data from the [OpenF1 API](
 - **SQLite** — structured local database storage
 - **FastAPI** — REST API framework
 - **Uvicorn** — ASGI server
+- **APScheduler** — automated pipeline scheduling
 - **OpenF1 API** — free, real-time F1 data source
 
 ## Project Structure
@@ -24,7 +26,9 @@ f1-data-pipeline/
 ├── database.py       # Database connection and table creation
 ├── insert_data.py    # Fetches data from OpenF1 API and stores it
 ├── api.py            # FastAPI endpoints
-└── requirements.txt  # Project dependencies
+├── scheduler.py      # Runs the pipeline automatically every 24 hours
+├── requirements.txt  # Project dependencies
+└── README.md
 ```
 
 ## API Endpoints
@@ -51,12 +55,13 @@ cd f1-data-pipeline
 pip install -r requirements.txt
 ```
 
-**3. Populate the database**
+**3. Start the automated pipeline**
 ```bash
-python insert_data.py
+python scheduler.py
 ```
+This runs the pipeline immediately and then every 24 hours automatically.
 
-**4. Start the API**
+**4. In a separate terminal, start the API**
 ```bash
 uvicorn api:app --reload
 ```
