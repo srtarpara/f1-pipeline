@@ -67,3 +67,40 @@ def get_session_by_location(location: str):
             "year": row[6]
         })
     return {"sessions": sessions}
+
+@app.get("/laps/{session_key}")
+def get_laps(session_key: int):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM lap_times WHERE session_key = ?", (session_key,))
+    rows = cursor.fetchall()
+    conn.close()
+
+    laps = []
+    for row in rows:
+        laps.append({
+            "id": row[0],
+            "session_key": row[1],
+            "driver_number": row[2],
+            "lap_number": row[3],
+            "lap_duration": row[4]
+        })
+    
+    return {"total_laps": len(laps), "laps" : laps}
+
+@app.get("/laps/{session_key}/fastest")
+def get_fastest_laps(session_key: int):
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT driver_number, MIN(lap_duration) as fastest_lap
+        FROM lap_times
+        WHERE session_key = ? AND lap_duration IS NOT NULL
+        GROUP BY driver_number
+        ORDER BY fastest_lap ASC
+    """, (session_key,))
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return{"fastest_laps": [{"driver_number": row[0], "fastest_lap": row[1]} for row in rows]}

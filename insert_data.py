@@ -56,6 +56,36 @@ def fetch_and_store_sessions():
     conn.close()
     print(f"Inserted {len(sessions)} sessions successfully")
 
+def fetch_and_store_lap_times(session_key):
+    url = f"https://api.openf1.org/v1/laps?session_key={session_key}"
+    response = requests.get(url)
+    laps = response.json()
+
+    if not laps:
+        print(f"No lap data for session {session_key}")
+        return
+    
+    conn = create_connection()
+    cursor = conn.cursor()
+
+    for lap in laps:
+        cursor.execute("""
+            INSERT OR REPLACE INTO lap_times
+            (session_key, driver_number, lap_number, lap_duration)
+            VALUES (?, ?, ?, ?)
+        """, (
+            lap.get('session_key'),
+            lap.get('driver_number'),
+            lap.get('lap_number'),
+            lap.get('lap_duration')
+        ))
+
+    conn.commit()
+    conn.close()
+
+    print(f"Inserted {len(laps)} laps for session {session_key}")
+
 if __name__ == "__main__":
     fetch_and_store_drivers()
     fetch_and_store_sessions()
+    fetch_and_store_lap_times(9472)
