@@ -2,8 +2,8 @@ import requests
 import sqlite3
 from database import create_connection
 
-def fetch_and_store_drivers():
-    url = "https://api.openf1.org/v1/drivers?session_key=latest"
+def fetch_and_store_drivers(session_key):
+    url = "https://api.openf1.org/v1/drivers?session_key={session_key}"
     response = requests.get(url)
     drivers = response.json()
 

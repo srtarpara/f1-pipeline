@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from database import create_connection
+from commentary import generate_commentary
 
 app = FastAPI()
 
@@ -104,3 +105,12 @@ def get_fastest_laps(session_key: int):
     conn.close()
 
     return{"fastest_laps": [{"driver_number": row[0], "fastest_lap": row[1]} for row in rows]}
+
+@app.get("/commentary/{session_key}")
+def get_race_commentary(session_key: int):
+    result = generate_commentary(session_key)
+
+    if "error" in result:
+        raise HTTPException(status_code = 404, detail = result["error"])
+    
+    return result
